@@ -1,0 +1,93 @@
+you need to be in the wordpress folder for these to run
+
+docker-compose down
+docker-compose up -d
+
+sudo systemctl start docker
+------------------------------
+
+nano docker-compose.yml
+
+wordpress:
+    image: wordpress
+    links:
+     - mariadb:mysql
+    environment:
+     - WORDPRESS_DB_PASSWORD=password
+     - WORDPRESS_DB_USER=root
+    ports:
+     - 80:80
+    volumes:
+     - ./html:/var/www/html
+mariadb:
+    image: mariadb
+    environment:
+     - MYSQL_ROOT_PASSWORD=password
+     - MYSQL_DATABASE=wordpress
+    volumes:
+     - ./database:/var/lib/mysql
+
+
+-----------------------
+
+1. installed docker on aws linux2
+https://gist.github.com/npearce/6f3c7826c7499587f00957fee62f8ee9
+
+2. installed docker-compose
+https://www.cyberciti.biz/faq/how-to-install-docker-on-amazon-linux-2/
+
+https://gist.github.com/npearce/6f3c7826c7499587f00957fee62f8ee9
+
+-----------------
+ec2 instance launch user data, these commands will run automatically before instance starts
+
+
+
+#!/bin/bash
+#install docker
+sudo yum -y install docker
+sudo service docker start
+sudo usermod -a -G docker ec2-user
+sudo newgrp ec2-user
+
+#installing docker compose
+sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+
+sudo chmod +x /usr/local/bin/docker-compose
+
+mkdir /home/ec2-user/wordpress
+cd /home/ec2-user/wordpress
+
+#get raw file from git hub not the usual path 
+#got to the yaml file and click on raw to get the full path
+wget https://raw.githubusercontent.com/eshanis/wordpress-docker-compose/main/docker-compose.yml
+docker-compose up -d
+
+
+------------------------------
+
+when you connect to the instance. 
+navigate to ssh folder 
+cd ./ssh
+
+then enter below command
+sudo newgrp ec2-user
+
+alternativley you can ssh into the ec2 using gitbash
+then then same steps above
+
+ssh -v -i "/c/Users/eshani.shah/.ssh/eshani-wordpress-key3" ec2-user@54.90.231.138
+
+note: give the full path of the key
+
+
+
+http://54.90.231.138/wp-admin/install.php?step=1
+
+
+Site Title	:NWM-wordpress-project
+Username	:nwm_admin
+
+Password	:nwm_password
+
+Your Email	:eshani.shah@hcl.com
